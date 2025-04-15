@@ -47,6 +47,15 @@ type TDeleteBoardAction = {
   boardId: string;
 };
 
+type TSortAction = {
+  boardId: string;
+  droppableIdStart: string;
+  droppableIdEnd: string;
+  droppableIndexStart: number;
+  droppableIndexEnd: number;
+  draggableId: string;
+};
+
 // 🔹 초기 상태
 const initialState: TBoardsState = {
   modalActive: false,
@@ -197,6 +206,33 @@ const boardsSlice = createSlice({
     addLog: (state, { payload }: PayloadAction<TLog>) => {
       state.logs.push(payload);
     },
+
+    sort: (state, { payload }: PayloadAction<TSortAction>) => {
+      const {
+        boardId,
+        droppableIdStart,
+        droppableIdEnd,
+        droppableIndexStart,
+        droppableIndexEnd,
+      } = payload;
+
+      const board = state.boardArray.find((b) => b.boardId === boardId);
+      if (!board) return;
+
+      const startList = board.lists.find((l) => l.listId === droppableIdStart);
+      const endList = board.lists.find((l) => l.listId === droppableIdEnd);
+      if (!startList || !endList) return;
+
+      // 같은 리스트 내 이동
+      if (droppableIdStart === droppableIdEnd) {
+        const [movedTask] = startList.tasks.splice(droppableIndexStart, 1);
+        startList.tasks.splice(droppableIndexEnd, 0, movedTask);
+      } else {
+        // 리스트 간 이동
+        const [movedTask] = startList.tasks.splice(droppableIndexStart, 1);
+        endList.tasks.splice(droppableIndexEnd, 0, movedTask);
+      }
+    },
   },
 });
 
@@ -211,6 +247,7 @@ export const {
   addLog,
   addTask,
   addList,
+  sort,
 } = boardsSlice.actions;
 
 export const boardsReducer = boardsSlice.reducer;

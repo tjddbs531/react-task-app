@@ -11,8 +11,9 @@ import ListsContainer from './components/ListsContainer/ListsContainer';
 import EditModal from './components/EditModal/EditModal';
 import LoggerModal from './components/LoggerModal/LoggerModal';
 import { useTypedDispatch, useTypedSelector } from './hooks/redux';
-import { deleteBoard, addLog } from './store/slices/boardsSlice';
+import { deleteBoard, addLog, sort } from './store/slices/boardsSlice';
 import { v4 as uuidv4 } from 'uuid';
+import { DragDropContext } from '@hello-pangea/dnd';
 
 function App() {
   const dispatch = useTypedDispatch();
@@ -59,6 +60,37 @@ function App() {
     }
   };
 
+  const handleDragEnd = (result: any) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+
+    const sourceList = lists.find((list) => list.listId === source.droppableId);
+    const destList = lists.find((list) => list.listId === destination.droppableId);
+    const movedTask = sourceList?.tasks.find(task => task.taskId === draggableId);
+
+    if (!sourceList || !destList || !movedTask) return;
+
+    dispatch(
+      sort({
+        boardId: activeBoardId,
+        droppableIdStart: source.droppableId,
+        droppableIdEnd: destination.droppableId,
+        droppableIndexStart: source.index,
+        droppableIndexEnd: destination.index,
+        draggableId,
+      })
+    );
+
+    dispatch(
+      addLog({
+        logId: uuidv4(),
+        logMessage: `리스트 "${sourceList.listName}"에서 "${destList.listName}"으로 ${movedTask.taskName}을 옮김.`,
+        logAuthor: 'User',
+        logTimestamp: String(Date.now()),
+      })
+    );
+  };
+
   return (
     <div className={appContainer}>
       {isLoggerOpen && <LoggerModal setIsLoggerOpen={setIsLoggerOpen} />}
@@ -70,7 +102,9 @@ function App() {
       />
 
       <div className={board}>
-        <ListsContainer lists={lists} boardId={getActiveBoard.boardId} />
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <ListsContainer lists={lists} boardId={getActiveBoard.boardId} />
+        </DragDropContext>
       </div>
 
       <div className={buttons}>
