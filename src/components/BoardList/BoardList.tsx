@@ -1,10 +1,13 @@
 // BoardList.tsx
+import clsx from 'clsx';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import React, { FC, useRef, useState } from 'react';
-import { useTypedDispatch, useTypedSelector } from '../../hooks/redux';
-import SideForm from './SideForm/SideForm';
 import { FiLogIn, FiPlusCircle } from 'react-icons/fi';
 import { GoSignOut } from 'react-icons/go';
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { app } from '../../firebase';
+import { useTypedDispatch, useTypedSelector } from '../../hooks/redux';
+import { useAuth } from '../../hooks/useAuth';
+import { removeUser, setUser } from '../../store/slices/userSlice';
 import {
   addButton,
   addSection,
@@ -13,10 +16,7 @@ import {
   container,
   title,
 } from './BoardList.css';
-import clsx from 'clsx';
-import { app } from '../../firebase';
-import { removeUser, setUser } from '../../store/slices/userSlice';
-import { useAuth } from '../../hooks/useAuth';
+import SideForm from './SideForm/SideForm';
 
 type TBoardListProps = {
   activeBoardId: string;

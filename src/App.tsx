@@ -1,4 +1,6 @@
+import { DragDropContext } from '@hello-pangea/dnd';
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {
   appContainer,
   board,
@@ -7,13 +9,11 @@ import {
   loggerButton,
 } from './App.css';
 import BoardList from './components/BoardList/BoardList';
-import ListsContainer from './components/ListsContainer/ListsContainer';
 import EditModal from './components/EditModal/EditModal';
+import ListsContainer from './components/ListsContainer/ListsContainer';
 import LoggerModal from './components/LoggerModal/LoggerModal';
 import { useTypedDispatch, useTypedSelector } from './hooks/redux';
-import { deleteBoard, addLog, sort } from './store/slices/boardsSlice';
-import { v4 as uuidv4 } from 'uuid';
-import { DragDropContext } from '@hello-pangea/dnd';
+import { addLog, deleteBoard, sort } from './store/slices/boardsSlice';
 
 function App() {
   const dispatch = useTypedDispatch();
